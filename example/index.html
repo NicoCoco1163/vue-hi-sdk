@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue Hi SDK</title>
+    <script src="../node_modules/vue/dist/vue.min.js"></script>
+    <script src="../dist/native.js"></script>
+    <script src="../node_modules/eruda/eruda.min.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <pre>{{ JSON.stringify(version) }}</pre>
+        <button id="sys" @click="getSystem">获取系统信息</button>
+        <button id="click" @click="setTitle">修改标题</button>
+        <button id="menu" @click="setMenuText">修改右上角菜单</button>
+    </div>
+    <script>
+    eruda.init();
+    Vue.use(VueHiSdk);
+
+    var native = new VueHiSdk.Native({
+        debug: true,
+        appAgentId: 123,
+        corporateId: 456,
+        actions: {
+            sysVersion: 'device.device.getSysVersion',
+            setTitle: 'appnative.title.setText',
+            setMenuText: 'appnative.menu.setButton'
+        }
+    });
+
+    var app = new Vue({
+        native: native,
+        el: '#app',
+        data: {
+            count: 0,
+            version: {}
+        },
+        methods: {
+            getSystem: function () {
+                var self = this;
+                this.$native.sysVersion()
+                    .then(function (data) {
+                        self.version = data;
+                    });
+            },
+            setTitle: function () {
+                this.count += 1;
+                this.$native.setTitle('Vue Hi SDK' + ' - ' + this.count);
+            },
+            setMenuText: function () {
+                this.$native.setMenuText({
+                    name: '点我试试',
+                    value: 'try'
+                }, function (val) {
+                    alert(val);
+                });
+            }
+        }
+    });
+
+    // use in jQuery
+    (function ($) {
+        $.extend({
+            native: native
+        });
+
+        var count = 1;
+
+        $('#click').click(function () {
+            console.log($.native.setTitle);
+            $.native.setTitle('new Title ' + count++);
+        });
+
+        $('#sys').click(function () {
+            $.native.sysVersion().then(res => {
+                console.log(res);
+            });
+        });
+
+        $('#menu').click(function () {
+            $.native.setMenuText({
+                name: '点我试试',
+                value: 'try'
+            }, function (val) {
+                console.log(val);
+            });
+        });
+    })(jQuery);
+
+    $.native.setMenuText({
+        name: '点我试试',
+        value: 'try'
+    }, function (val) {
+        console.log(val);
+    });
+    </script>
+</body>
+</html>

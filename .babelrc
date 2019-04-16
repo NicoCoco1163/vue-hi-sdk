@@ -1,0 +1,15 @@
+{
+    "presets": [
+        ["@babel/preset-env", {
+            "modules": false,
+            "targets": {
+                "browsers": [
+                    "> 5%",
+                    "not ie <= 8"
+                ]
+            },
+            "useBuiltIns": "usage",
+            "corejs": 3
+        }]
+    ]
+}
